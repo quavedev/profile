@@ -18,21 +18,7 @@ $ meteor add quave:profile
 
 ## Usage
 
-To profile the Meteor server at runtime, open the Meteor shell and run the following commands:
-
-```sh
-import Profiler from "meteor/quave:profile";
-
-let profileName = 'myprofile';
-let profilePath = '/path/to/profiles/myprofile.cpuprofile';
-let profileMS = 10000;
-
-Profiler.profileDuration(profileName, profilePath, profileMS);
-```
-
-This will profile your code for ten seconds and save the profile to `/path/to/profiles/myprofile.cpuprofile`.
-
-You can call `Profiler.profileDuration` from anywhere in your code, but it is often convenient to call it from the Meteor shell.
+### Send the file to AWS S3
 
 If you don't have access to disk (like running on Galaxy) you can provide AWS S3 credentials in your settings and then the package is going to send to S3:
 ```json
@@ -55,6 +41,24 @@ You can pass the `durationMs` to choose for how long do you want to profile.
 If you are running on Galaxy you can use the URL for a specific container to profile a problematic container.
 
 Check the logs in the server after the duration to get the URL or check your bucket and the file `.cpuprofile` will be there.
+
+### Write the file to the disk
+
+To profile the Meteor server at runtime, open the Meteor shell and run the following commands:
+
+```sh
+import Profiler from "meteor/quave:profile";
+
+let profileName = 'myprofile';
+let profilePath = '/path/to/profiles/myprofile.cpuprofile';
+let profileMS = 10000;
+
+Profiler.profileDuration(profileName, profilePath, profileMS);
+```
+
+This will profile your code for ten seconds and save the profile to `/path/to/profiles/myprofile.cpuprofile`.
+
+You can call `Profiler.profileDuration` from anywhere in your code, but it is often convenient to call it from the Meteor shell.
 
 ## Reading Profiles
 
