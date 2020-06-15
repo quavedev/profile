@@ -4,42 +4,24 @@ This package makes it easy to record proper sampling [CPU profiles](https://gith
 
 ![example flamechart](https://user-images.githubusercontent.com/247408/60747657-a0bae300-9f3b-11e9-8dc3-b615a2611aca.png)
 
-This package supports profiling both the Meteor build process and the Meteor server process.
+This package supports profiling the Meteor server process and send to S3 or save in the local disk.
+
+> if you want to profile Meteor build, [use this package](https://github.com/qualialabs/profile)).
 
 ## Installation
 
 ```sh
-$ meteor add qualia:profile
+$ meteor add quave:profile
 ```
 
-As of version `1.0.0`, this package is only compatible with Meteor `1.8.2` or newer. If you are using an older version of Meteor you should stick with version `0.0.13`.
+> this package is only compatible with Meteor `1.8.2` or newer.
 
 ## Usage
-
-There are two uses of `qualia:profile`. The first is for profiling Meteor build and reload performance. The second is for profiling Meteor runtime performance.
-
-#### Build Profiling
-
-To enable profiling Meteor builds, just run you application with the environment variable `QUALIA_PROFILE_FOLDER` set to the folder where you'd like the CPU profiles to be saved. For example, you might start your application like:
-
-```sh
-QUALIA_PROFILE_FOLDER=/path/to/profiles meteor
-```
-
-Once this environment variable is set, four different kinds of profiles will be saved to that folder.
-  1. `initial-build.cpuprofile` profiles the build process the very first time it is run.
-  2. `full-rebuild.cpuprofile` profiles the build process when at least one server-side file has changed.
-  3. `client-rebuild.cpuprofile` profiles the build process when only client-side files have changed. Meteor has a fast track for this scenario.
-  4. `startup.cpuprofile` profiles the server process as it boots up.
-
-When trying to figure out why your app takes so long to build/rebuild, it is important to look at all 4 of these different profiles. You should also play around with which files you are using to trigger reloads. Meteor packages rebuild somewhat independently.
-
-#### Runtime Profiling
 
 To profile the Meteor server at runtime, open the Meteor shell and run the following commands:
 
 ```sh
-import Profiler from "meteor/qualia:profile";
+import Profiler from "meteor/quave:profile";
 
 let profileName = 'myprofile';
 let profilePath = '/path/to/profiles/myprofile.cpuprofile';
@@ -50,8 +32,27 @@ Profiler.profileDuration(profileName, profilePath, profileMS);
 
 This will profile your code for ten seconds and save the profile to `/path/to/profiles/myprofile.cpuprofile`.
 
-You can call `Profiler.profileDuration` from anywhere in your code, but it is often convenient to call it from the Meteor shell. If you enable the [Meteor shell in prod](https://github.com/qualialabs/prod-shell), you can profile live production code.
+You can call `Profiler.profileDuration` from anywhere in your code, but it is often convenient to call it from the Meteor shell.
 
+If you don't have access to disk (like running on Galaxy) you can provide AWS S3 credentials in your settings and then the package is going to send to S3:
+```json
+    "quave:profile": {
+      "s3": {
+        "Bucket": "yourbucket",
+        "accessKeyId": "XXXXXXXXXXXXXXXXXXXX",
+        "secretAccessKey": "XXXXXXXX+Ox/xsajksadSJKDSAJKDJASKDJASKJDSA",
+        "region": "us-east-1"
+      }
+    }
+```
+
+You can start a profile calling a meteor Method from the console of your browser when your app is loaded there:
+```js
+Meteor.call('quave:profile#execute', { durationMs:3500 })
+```
+You can pass the `durationMs` to choose for how long do you want to profile.
+
+If you are running on Galaxy you can use the URL for a specific container to profile a problematic container.
 
 ## Reading Profiles
 

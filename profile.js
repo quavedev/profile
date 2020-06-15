@@ -1,33 +1,44 @@
-getProfiler = function(v8Profiler, fs) {
-  var currentProfiles = {},
-      colorize        = function(s) {
-        return '\x1b[36m' + s + '\x1b[0m';
-      }
-  ;
+import fs from 'fs';
 
-  var startProfile = function(profileName, options) {
+const PACKAGE_NAME = 'quave:profile';
+
+const defaultConsumer = (exportPath, result) =>
+  fs.writeFileSync(exportPath, result);
+
+export const getProfiler = v8Profiler => {
+  const currentProfiles = {};
+
+  const startProfile = (profileName, options) => {
     if (currentProfiles[profileName]) {
       return;
     }
     currentProfiles[profileName] = options;
 
-    console.log(colorize('Profiling "' + profileName + '"'));
+    console.log(`[${PACKAGE_NAME}] Profiling "${profileName}"`);
     v8Profiler.startProfiling(profileName);
   };
 
-  var stopProfile = function(profileName) {
-    if (!currentProfiles[profileName] || currentProfiles[profileName].complete) {
+  const stopProfile = (profileName, profileConsumer = defaultConsumer) => {
+    if (
+      !currentProfiles[profileName] ||
+      currentProfiles[profileName].complete
+    ) {
       return;
     }
     currentProfiles[profileName].complete = true;
 
-    var profile    = v8Profiler.stopProfiling(profileName),
-        exportPath = currentProfiles[profileName].exportPath
-    ;
+    const profile = v8Profiler.stopProfiling(profileName);
+    const exportPath = currentProfiles[profileName].exportPath;
 
-    profile.export(function(error, result) {
-      fs.writeFileSync(exportPath, result);
-      console.log(colorize('Profile "' + profileName + '" has been written to ' + exportPath));
+    profile.export((error, result) => {
+      if (error) {
+        console.error('Error exporting profile', error);
+        return;
+      }
+      profileConsumer(exportPath, result);
+      console.log(
+        `[${PACKAGE_NAME}] Profile "${profileName}" has been written to ${exportPath}`
+      );
 
       profile.delete();
       delete currentProfiles[profileName];
@@ -35,7 +46,7 @@ getProfiler = function(v8Profiler, fs) {
   };
 
   return {
-    startProfile: startProfile,
-    stopProfile: stopProfile,
+    startProfile,
+    stopProfile,
   };
 };
