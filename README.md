@@ -54,7 +54,7 @@ You can pass the `durationMs` to choose for how long do you want to profile.
 
 If you are running on Galaxy you can use the URL for a specific container to profile a problematic container.
 
-Check the logs after the duration to get the URL or check your bucket and the file `.cpuprofile` will be there.
+Check the logs in the server after the duration to get the URL or check your bucket and the file `.cpuprofile` will be there.
 
 ## Reading Profiles
 
