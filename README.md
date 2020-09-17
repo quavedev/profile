@@ -22,6 +22,7 @@ $ meteor add quave:profile
 
 If you don't have access to disk (like running on Galaxy) you can provide AWS S3 credentials in your settings and then the package is going to send to S3:
 ```json
+  "packages": {
     "quave:profile": {
       "s3": {
         "Bucket": "yourbucket",
@@ -30,6 +31,7 @@ If you don't have access to disk (like running on Galaxy) you can provide AWS S3
         "region": "us-east-1"
       }
     }
+  }
 ```
 
 You can start a profile calling a meteor Method from the console of your browser when your app is loaded there:
